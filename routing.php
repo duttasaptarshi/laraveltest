@@ -1,13 +1,12 @@
+//ROUTES/web.php
 //creating a test page
 Route::get('/test', function () {
     return view('test');
 });
-
 //creating a welcome page
 Route::get('/welcome', function () {
     return view('welcome');
 });
-
 //pass request data to views
 Route::get('/', function () {
     $name = request('name');
@@ -17,6 +16,29 @@ Route::get('/', function () {
     ]);
 });
 
+//CONTROLLERS/postcontroller.php
+//creating the controllers & routing to controllers
+<?php
+namespace App\Http\controllers;
+class postcontroller 
+{
+    public function show($slug)
+    {
+        $posts = [
+            'myfirstpost'=>'hello,this is my first post!'
+            'mysecondpost'=>'now i am getting hang of this'
+            ];
+            if(!array_key_exist($post,$posts)){
+                abort(404,'page not found!');
+            }
+            return view('post',[
+            'post' => $post[$post]
+        ]);
+    }
+}
+
+//VIEWS/post.blade.php
+//creating view page
 <!doctype html>
 <html lang="en">
 <head>
@@ -32,7 +54,8 @@ Route::get('/', function () {
     <title>Document</title>
 </head>
 <body>
-<hl>{{ $name }}</hl>
+<hl>Document</hl>
+<p>{{ $name }}</p>
 </body>
 </html>
 
