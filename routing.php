@@ -1,11 +1,14 @@
+//creating a test page
 Route::get('/test', function () {
     return view('test');
 });
 
+//creating a welcome page
 Route::get('/welcome', function () {
     return view('welcome');
 });
 
+//pass request data to views
 Route::get('/', function () {
     $name = request('name');
 
