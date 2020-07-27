@@ -25,3 +25,29 @@ DB_PASSWORD=
 //ROUTES/map.php
 //creating routes
 Route::get('/posts/{post}', 'postcontroller@show');
+
+//Introduction to eloquent
+//creating a post.php in app to config eloquent
+//APPS/post.php
+<?php
+namespace App;
+use Illuminate\Database\Eloquent\Model;
+class Post extends Model
+{
+}
+//making change in controllers,puling in post.
+//CONTROLLERS/postcontroller.php
+<?php
+namespace App\Http\controllers;
+use DB;
+use App\Post;
+class postcontroller extends controller
+{
+    public function show($slug)
+    {
+        $post = post::where('slug',$slug)->firstorfail();
+        return view('post',[
+            'post' => $post
+        ]);   
+    }
+}
