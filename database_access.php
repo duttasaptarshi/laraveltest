@@ -53,12 +53,12 @@ class postcontroller extends controller
     }
 }
 
-//command for migration(for table creation)
-php artisan migrate
-php artisan make:migration create_posts_table
-//a php file is created in migration
-//we edit the file and fill the table coloumn
-//DATABASE/MIGRATION/2020_07_27_110504_create_posts_table.php
+//command for migration(for table creation)                             //for generating multiple files in a single command we use model
+php artisan migrate                                                         php artisan make:model project -mc
+php artisan make:migration create_posts_table                             //files created are :-  
+//a php file is created in migration                                       //APPS/PROVIDERS/project.php
+//we edit the file and fill the table coloumn                             //APPS/HTTP/CONTROLLERS/projectcontroller.php
+//DATABASE/MIGRATION/2020_07_27_110504_create_posts_table.php               //DATABASE/MIGRATION/2020_07_27_110504_create_posts_table.php
  <?php
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
