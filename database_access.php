@@ -81,3 +81,24 @@ class CreatePostsTable extends Migration
         Schema::dropIfExists('posts');
     }
 }
+
+//after creating a table(assignment)
+//using php artisan tinker
+//accressing the table
+App\assignment::all();
+//after creating complete() in APP/HTTP/provider/assignment.php
+<?php
+namespace App;
+use Illuminate\Database\Eloquent\Model;
+class assignment extends Model
+{
+    public function complete()
+    {
+        $this->completed = true;
+        $this->save();
+    }
+}
+//using tinker saving changes
+$assignment = App\assignment::first();
+$assignment = complete()
+exit();
