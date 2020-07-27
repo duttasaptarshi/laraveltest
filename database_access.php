@@ -53,7 +53,7 @@ class postcontroller extends controller
     }
 }
 
-//command for migration(for table creation)                             //for generating multiple files in a single command we use model
+//command for migration(for table creation)                             //for generating multiple(migration and controller) files in a single command we use model
 php artisan migrate                                                         php artisan make:model project -mc
 php artisan make:migration create_posts_table                             //files created are :-  
 //a php file is created in migration                                       //APPS/PROVIDERS/project.php
