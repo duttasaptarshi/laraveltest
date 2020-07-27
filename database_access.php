@@ -33,8 +33,9 @@ Route::get('/posts/{post}', 'postcontroller@show');
 namespace App;
 use Illuminate\Database\Eloquent\Model;
 class Post extends Model
-{
+{ //
 }
+
 //making change in controllers,puling in post.
 //CONTROLLERS/postcontroller.php
 <?php
