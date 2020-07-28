@@ -14,3 +14,7 @@ DATABASE ACCESS :
 
 VIEWS:
   layout pages,
+  integrate asite template,
+  set an active menu link,
+  asset complication with laravel mix and webpack,
+  render dynamic data.
