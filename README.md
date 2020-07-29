@@ -18,3 +18,10 @@ VIEWS:
   set an active menu link,
   asset complication with laravel mix and webpack,
   render dynamic data.
+  
+FORMS:
+  seven restfull controller action,
+  restfull routing,
+  form handelling,
+  forms that submit put request,
+  form validation essencials.
