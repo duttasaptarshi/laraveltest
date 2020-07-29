@@ -214,3 +214,215 @@ Released   : 20140225
 		</div>
     </div>
 @endsection
+//RESOURCES/VIEWS/article/index.php
+<div id="wrapper">
+	<div id="page" class="container">
+        @foreach($articles as $article)
+            <div id="content">
+                <div class="title">
+                    <h2>
+                        <a href = "/articles/{{$article -> id}}">
+                        {{$article -> title}}
+                        </a>
+                    </h2>
+                </div>
+                <p>
+                    <img 
+                    src="/images/banner.jpg" 
+                    alt="" 
+                    class="image image-full" 
+                    /> 
+                </p>
+                {!! $article -> excerpt!!}
+            </div>
+        @endforeach	
+	</div>
+</div>
+//RESOURCES/VIEWS/article/create.php
+@extends('layout')
+@section('head')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">"/>
+@endsection
+@section('content')
+<div id="wrapper">
+	<div id="page" class="container">
+        <h1 class="heading has-text-weight-bold is-size-4" >New Article</h1>
+        <form method="POST" action="/articles">
+            @csrf
+            <div class="field">
+                <label class="label" for="title">Title</label>   
+
+                <div class="control">
+                    <input class="input" type="text" name="title" id="title">
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="excerpt">Excerpt</label>   
+
+                <div class="control">
+                    <textarea class="textarea" name="excerpt" id="excerpt"></textarea>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="excerpt">Body</label>   
+
+                <div class="control">
+                    <textarea class="textarea" name="body" id="body"></textarea>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <div label class="controll">   
+                    <button class="button is-link" type="submit">Submit</button>
+                </div
+            </div>
+        </form>  
+    </div>
+</div>
+@endsection
+//RESOURCES/VIEWS/article/edit.php
+@extends('layout')
+@section('head')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.0/css/bulma.min.css">"/>
+@endsection
+@section('content')
+<div id="wrapper">
+	<div id="page" class="container">
+        <h1 class="heading has-text-weight-bold is-size-4" >Update Article</h1>
+        <form method="POST" action="/articles/{{$article->id}}">
+            @csrf
+            @method('PUT')
+            <div class="field">
+                <label class="label" for="title">Title</label>   
+
+                <div class="control">
+                    <input class="input" type="text" name="title" id="title" value="{{$article->title}}">
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="excerpt">Excerpt</label>   
+
+                <div class="control">
+                    <textarea class="textarea" name="excerpt" id="excerpt">{{$article->excerpt}}</textarea>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label" for="excerpt">Body</label>   
+
+                <div class="control">
+                    <textarea class="textarea" name="body" id="body">{{$article->body}}</textarea>
+                </div>
+            </div>
+            <div class="field is-grouped">
+                <div label class="controll">   
+                    <button class="button is-link" type="submit">Submit</button>
+                </div
+            </div>
+        </form>  
+    </div>
+</div>
+@endsection
+//RESOURCES/VIEWS/article/show.php
+@extends ('layout')
+@section ('content')
+<div id="wrapper">
+	<div id="page" class="container">
+		<div id="content">
+			<div class="title">
+				<h2>{{$article -> title}}</h2>
+				<span class="byline">{{$article -> excerpt}}</span></div>
+			<p><img src="/images/banner.jpg" alt="" class="image image-full" /> </p>
+            {{$article -> body}}
+    	</div>	
+	</div>
+</div>
+@endsection
+//updating the controller
+//APPS/CONTROLLER/ArticleController.php
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Article;
+use Illuminate\Http\Request;
+
+class ArticlesController extends Controller
+{
+    public function index()
+    {   // show a single resource
+        $articles = Article::latest()->get();
+        return view('articles.index',['articles'=>$articles]);
+    }
+
+    public function show($id)
+    {   // show a view to create a resource
+        $article = Article::find($id);
+        return view('articles.show',['article'=>$article]);
+    }
+
+    public function create()
+    {   //persist the edited resource
+    return view('articles.create');
+    }
+    public function store()
+    {   //persist a new resource
+        $article=new Article();
+
+        $article->title=request('title');
+        $article->excerpt=request('excerpt');
+        $article->body=request('body');
+        $article->save();
+
+        return redirect('/articles');
+    }
+
+    public function edit($id)
+    {   //show a view to edit an existing resource
+        $article = Article::find($id);
+        return view('articles.edit',compact('article'));
+    }
+
+    public function update($id)
+    {   //delete the resource
+        $article = Article::find($id);
+        $article->title=request('title');
+        $article->excerpt=request('excerpt');
+        $article->body=request('body');
+        $article->save();
+        return redirect('/articles/'.$article->id);
+    }
+}
+//updating the routes 
+//ROUTES/web.php
+		<?php
+
+use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider within a group which
+| contains the "web" middleware group. Now create something great!
+|
+*/
+
+Route::get('/articles', function () {
+    return view('articles.index',[
+        'articles' => App\Article::latest()->get()
+    ]);
+});
+    
+
+Route::get('/', function () {
+    return view('welcome');
+});
+
+
+Route::get('/articles', 'ArticlesController@index');
+Route::post('/articles', 'ArticlesController@store');
+Route::get('/articles/create', 'ArticlesController@create');
+Route::get('/articles/{article}', 'ArticlesController@show');
+Route::get('/articles/{article}/edit', 'ArticlesController@edit');
+Route::put('/articles/{article}', 'ArticlesController@update');
