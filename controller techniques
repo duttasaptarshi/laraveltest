@@ -1,0 +1,136 @@
+//APPS/HTTP/CONTROLLERS/articlescontroller.php
+<?php
+namespace App\Http\Controllers;
+use App\Article;
+use Illuminate\Http\Request;
+class ArticlesController extends Controller
+{
+    public function index()
+    {   // show a single resource
+        $articles = Article::latest()->get();
+        return view('articles.index',['articles'=>$articles]);
+    }
+
+    public function show(Article $article)
+    {   // show a view to create a resource
+        //$article = Article::findorfail($id);
+        //return $article;
+
+        return view('articles.show',['article'=>$article]);
+    }
+
+    public function create()
+    {   //persist the edited resource
+        return view('articles.create');
+    }
+
+    public function store()//persist a new resource
+    {   
+        Article::create($this->validateArticle());
+        return redirect(route('articles.index'));
+    }
+
+    public function edit(Article $article)
+    {   //show a view to edit an existing resource
+        //$article = Article::find($id);
+        return view('articles.edit',compact('article'));
+    }
+
+    public function update(Article $article) //update the resource
+    {   
+        $article->update($this->validateArticle());
+        return redirect(route('articles.show',$article));
+    }
+
+    protected function validateArticle()
+    {
+        return request()->validate([
+            'title'=>'required',
+            'excerpt'=>'required',
+            'body'=>'required'    
+        ]);
+    }
+}
+//APPS/PROVIDERS/Article.php
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Article extends Model
+{
+    protected $guarded = [];
+
+    public function path()
+    {
+        return route('articles.show',$this);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
+//APPS/PROVIDERS/User.php
+<?php
+
+namespace App;
+
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+    public function articles()
+    {
+        return $this->hasMany(Article::class);
+    }
+    public function projects()
+    {
+        return $this->hasMany(Project::class);  
+    }
+}
+//APPS/PROVIDERS/project.php
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
+{
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
