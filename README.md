@@ -25,3 +25,12 @@ FORMS:
   form handelling,
   forms that submit put request,
   form validation essencials.
+  
+CONTROLLER TECHNIQUE:
+  Leverage routing model binding,
+  reduce duplicate,
+  concider names.
+  
+ELOQUENT:
+  basic eloquent relationship,
+  understanding foreign key,
