@@ -76,3 +76,103 @@ class CreateUsersTable extends Migration
     }
 }
 
+App\Http\Controllers\\ArticlesController.php
+<?php
+namespace App\Http\Controllers;
+use App\Article;
+use Illuminate\Http\Request;
+use App\Tag;
+class ArticlesController extends Controller
+{
+    public function index()
+    {   // show a single resource
+        if(request('tag')){
+            $articles=Tag::where('name',request('tag'))->firstOrFail()->articles;
+        }else{
+            $articles = Article::latest()->get();  
+        }
+        return view('articles.index',['articles'=>$articles]);
+    }
+
+    public function show(Article $article)
+    {   // show a view to create a resource
+        //$article = Article::findorfail($id);
+        //return $article;
+
+        return view('articles.show',['article'=>$article]);
+    }
+
+    public function create()
+    {   //persist the edited resource       
+        return view('articles.create',[
+            'tags' => Tag::all()
+        ]);
+    }
+
+    public function store()//persist a new resource
+    {   
+        $this->validateArticle();
+        $article = new Article(request(['title','excerpt','body']));
+        $article ->user_id = 1;
+        $article ->save();
+        $article->tags()->attach(request('tags'));
+        return redirect(route('articles.index'));
+    }
+
+    public function edit(Article $article)
+    {   //show a view to edit an existing resource
+        //$article = Article::find($id);
+        return view('articles.edit',compact('article'));
+    }
+
+    public function update(Article $article) //update the resource
+    {   
+        $article->update($this->validateArticle());
+        return redirect(route('articles.show',$article));
+    }
+
+    protected function validateArticle()
+    {
+        return request()->validate([
+            'title'=>'required',
+            'excerpt'=>'required',
+            'body'=>'required',
+            'tags' => 'exists:tags,id'   
+        ]);
+    }
+}
+
+//REOURCES/VIEWS/show.blade.php
+@extends ('layout')
+@section ('content')
+<div id="wrapper">
+	<div id="page" class="container">
+		<div id="content">
+			<div class="title">
+				<h2>{{$article -> title}}</h2>
+				<span class="byline">{{$article -> excerpt}}</span></div>
+			<p><img src="/images/banner.jpg" alt="" class="image image-full" /> </p>
+            {{$article -> body}}
+			<p style ="margin-top:1em">
+				@foreach ($article->tags as $tag)
+					<a href="{{ route('articles.index',['tag' => $tag->name])}}">{{ $tag->name }}</a>
+				@endforeach
+			</p>
+    	</div>	
+	</div>
+</div>
+@endsection
+//APPS/project.php
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Project extends Model
+{
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}
