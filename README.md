@@ -34,3 +34,8 @@ CONTROLLER TECHNIQUE:
 ELOQUENT:
   basic eloquent relationship,
   understanding foreign key,
+  many to many relation ship with table linking,
+  display all tag under each article,
+  attach and validate many to many inserts.
+AUNTHICATION:
+  build a registration system
