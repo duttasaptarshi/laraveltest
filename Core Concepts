@@ -1,0 +1,41 @@
+//ROUTES/web.php
+Route::get('/', function () {
+    $container = new \App\Container();
+    $container->bind('example',function(){
+            return new \App\Example();
+    });
+
+    $example=$container->resolve('example');
+    $example->go();
+});
+
+\\Creating a file in app with the name of container.php
+\\APP\container.php
+<?php
+namespace App;
+class Container
+{
+    protected $bindings = [];
+    public function bind($key,$value)
+    {
+        $this->bindings[$key] = $value;
+    }
+
+    public function resolve($key)
+    {
+        if(isset($this->bindings[$key])){
+            return call_user_func($this->bindings[$key]);
+        }
+    }
+}
+
+\\APP\Example.php
+<?php
+namespace App;
+class Example
+{
+    public function go()
+    {
+        dump('it works!');
+    }
+}
