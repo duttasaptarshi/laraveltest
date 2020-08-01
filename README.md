@@ -43,3 +43,7 @@ AUNTHICATION:
   password reset.
   
 CORE CONCEPTS:
+  collections,
+  CSRF attack, 
+  service container,
+  automatically resolve dependencies.
