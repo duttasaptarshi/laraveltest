@@ -1,0 +1,139 @@
+//crating a contact file
+//RESOURCES/VIEWS/contact.blade.php
+</DOCTYPE html>
+<html class="h-full">
+<head>
+    <meta
+        http-equiv="Content-Type"
+        content="text/html;charset=UTF-8"
+    >
+    <title>Mail Lesson</title>
+    <link
+        href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css"
+        rel="stylesheet"
+    >
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-full">
+    <form
+        method="POST"
+        action="/contact"
+        class="bg-white p-6 rounded shadow-md"
+        style="width: 300px"
+    >
+        @csrf
+        <div class="mb-5">
+            <label 
+                for="email"
+                class="block text-xs uppercase font-semibold mb-1"
+            >
+                Email Address
+            </label>
+            <input
+                type="text"
+                id="email"
+                name="email"
+                class="border px-2 py-1 text-sm w-full"
+            >
+            @error('email')
+                <div class="text-red-500 text-xs">{{$message}}</div>
+            @enderror
+        <div>
+        <button
+            type="submit"
+            class="bg-blue-500 py-2 text-white rounded-full text-sm w-full"
+        >
+            Email Me 
+        </button>
+        @if(session('message'))
+        <div>
+        {{session('message')}}
+        </div>
+        @endif
+    </form>
+</body>
+</html>
+
+// a email folder in views
+//RESOURCES/VIEWS/emails/contact-me.blade.php
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+<h1>it works again!</h1>   
+<p> it sounds like you want to hear more about {{$topic}}.</p> 
+</body>
+</html>
+
+//APP/mail/ContactMe.php
+<?php
+namespace App\Mail;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Mail\Mailable;
+use Illuminate\Queue\SerializesModels;
+
+class ContactMe extends Mailable
+{
+    use Queueable, SerializesModels;
+    public $topic;
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
+    public function __construct(string $topic)
+    {
+        $this->topic = $topic; 
+    }
+
+    /**
+     * Build the message.
+     *
+     * @return $this
+     */
+    public function build()
+    {
+        return $this->view('emails.contact-me')
+            ->subject('more information about'.$this->topic);
+    }
+}
+//creating controller
+//APP/HTTP/CONTROLLER/ContactController.php
+<?php
+namespace App\Http\Controllers;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ContactMe;
+class ContactController extends Controller
+{
+    public function show()
+    {
+        return view('contact');
+    }
+
+    public function store()
+    {
+        request()->validate(['email' => 'required|email']);
+        // Mail::raw('it works!', function ($message) {
+        //     $message -> to(request('email'))
+        //     ->subject('Hello There');
+        // });
+        Mail::to(request('email'))
+            ->send(new ContactMe('shirts'));
+        return redirect('/contact')
+            ->with('message','Email Sent!');
+    }
+}
+//ROUTES/VIEWS/web.php
+Route::get('/','PagesController@home');
+// Route::get('/', function (\App\Example $example) {
+//     //$example=resolve(\App\Example::class);
+//     //$example->go();
+//     ddd($example);
+//     });
+Route::get('/contact','ContactController@show');
+Route::post('/contact','ContactController@store');
