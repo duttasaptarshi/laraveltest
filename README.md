@@ -46,4 +46,13 @@ CORE CONCEPTS:
   collections,
   CSRF attack, 
   service container,
-  automatically resolve dependencies.
+  automatically resolve dependencies,
+  laravel facades,
+  service providers.
+  
+MAIL:
+  send raw mail,
+  using mailtrap,
+  send html email,
+  send email using markdown template,
+  notification vs mailable.
