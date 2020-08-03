@@ -56,3 +56,11 @@ MAIL:
   send html email,
   send email using markdown template,
   notification vs mailable.
+  
+NOTIFICATION:
+  database notifications.
+  sms notifications
+  
+EVENTS
+
+AUTHORIZATION:
