@@ -1,0 +1,48 @@
+\\creating a payments\create page
+\\RESOURCES\VIEWS\NOTIFICATION\blade.php
+@extends('layouts.app')
+
+@section('content')
+<div class="container">
+    <ul>
+        @forelse($notifications as $notification)
+            <li>
+                @if($notification->type = 'App\Notifications\PaymentReceived')
+                    we have received a payment of {{$notification->data['amount']}} from you.
+                @endif
+            </li>
+        @empty
+            <li>you have no unread notifications at this time.</li>
+        @endforelse
+    </ul>
+</div>
+@endsection
+\\ROUTES\web.php
+Route::get('/home', 'HomeController@index')->name('home');
+Route::get('payments/create', 'PaymentsController@create')->middleware('auth');
+Route::post('payments', 'PaymentsController@store')->middleware('auth');
+Route::get('notifications', 'UserNotificationsController@show')->middleware('auth');
+Auth::routes();
+
+\\APP\HTTP\controller\paymentscontroller.php
+?php
+namespace App\Http\Controllers;
+use App\Notifications\PaymentReceived;
+use App\Events\ProductPurchased;
+use Illuminate\Support\Facades\Notification;
+
+class PaymentsController extends Controller
+{   
+    public function create()
+    {
+        return view('payments.create');
+    }
+
+    public function store()
+    {
+        //request()->use->notify(new PaymentReceived(900));
+        Notification::send(request()->user(),new PaymentReceived(900));
+        //ProductPurchased::dispatch('toy');
+    }
+
+}
