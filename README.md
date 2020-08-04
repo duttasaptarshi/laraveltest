@@ -58,9 +58,14 @@ MAIL:
   notification vs mailable.
   
 NOTIFICATION:
-  database notifications.
-  sms notifications
+  database notifications,
+  sms notifications.
   
 EVENTS
 
 AUTHORIZATION:
+  limit access to authorised users,
+  authorization filter,
+  Guessing the ability name,
+  middlewire-based authorization,
+  roles and abilities.
