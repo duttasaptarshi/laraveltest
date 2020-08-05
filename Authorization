@@ -314,3 +314,326 @@ class ConversationsSeeder extends Seeder
         factory(App\Reply::class,15)->create();
     }
 }
+
+\\roles and abilities
+\\routes\web\php.
+Route::get('/reports', function () {
+    return 'the secret reports';
+})->middleware('can:view_reports');
+
+\\App\Rolr.php
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Role extends Model
+{
+    protected $guarded = [];
+    public function abilities()
+    {
+        return $this->belongsToMany(Ability::class)->withTimestamps();
+    }
+
+    public function allowTo($ability)
+    {
+        if(is_string($ability)){
+            $ability=Ability::whaereName($ability)->firstOrFail();
+        }
+        $this->abilities()->sync($ability,false);
+    }
+}
+
+\\App\User.php<?php
+namespace App;
+use App\Role;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // public function conversations(){
+    //     return $this->hasMany(Conversation::class);
+    // }
+
+    // public function replies()
+    // {
+    //     return $this->hasMany(Reply::class);
+    // }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+    public function assignRole($role)
+    {
+        if(is_string($role)){
+            $role=Role::whaereName($role)->firstOrFail();
+        }
+        $this->roles()->sync($role,false);
+    }
+    public function abilities()
+    {
+        return $this->roles->map->abilities->flatten()->pluck('name')->unique();
+    }
+}
+
+\\App\Ability.php
+<?php
+
+namespace App;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Ability extends Model
+{
+    protected $guarded = [];
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+}
+
+
+\\App\Reply.php
+<?php
+namespace App;
+use Illuminate\Database\Eloquent\Model;
+class Role extends Model
+{
+    protected $guarded = [];
+    public function abilities()
+    {
+        return $this->belongsToMany(Ability::class)->withTimestamps();
+    }
+
+    public function allowTo($ability)
+    {
+        if(is_string($ability)){
+            $ability=Ability::whaereName($ability)->firstOrFail();
+        }
+        $this->abilities()->sync($ability,false);
+    }
+}
+
+\\database\createReplyTable.php
+<?php
+namespace App;
+use App\Role;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use Notifiable;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'name', 'email', 'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for arrays.
+     *
+     * @var array
+     */
+    protected $hidden = [
+        'password', 'remember_token',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+    ];
+
+    // public function conversations(){
+    //     return $this->hasMany(Conversation::class);
+    // }
+
+    // public function replies()
+    // {
+    //     return $this->hasMany(Reply::class);
+    // }
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+    public function assignRole($role)
+    {
+        if(is_string($role)){
+            $role=Role::whaereName($role)->firstOrFail();
+        }
+        $this->roles()->sync($role,false);
+    }
+    public function abilities()
+    {
+        return $this->roles->map->abilities->flatten()->pluck('name')->unique();
+    }
+}
+
+\\database\migration\createRolesTable.php
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+class CreateRolesTable extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('roles', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('label')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('abilities', function (Blueprint $table) {
+            $table->bigIncrements('id');
+            $table->string('name');
+            $table->string('label')->nullable();
+            $table->timestamps();
+        });
+
+        Schema::create('ability_role', function (Blueprint $table) {
+            $table->primary(['role_id','ability_id']);
+
+            $table->unsignedBigInteger('role_id');
+            $table->unsignedBigInteger('ability_id');
+            $table->timestamps();
+
+            $table->foreign('role_id')
+                ->references('id')
+                ->on('roles')
+                ->onDelete('cascade');
+
+            $table->foreign('ability_id')
+                ->references('id')
+                ->on('abilities')
+                ->onDelete('cascade');
+        });
+
+        Schema::create('role_user', function (Blueprint $table) {
+            $table->primary(['user_id','role_id']);
+            
+            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('role_id');
+            $table->timestamps();
+
+            $table->foreign('user_id')
+                ->references('id')
+                ->on('users')
+                ->onDelete('cascade');
+
+            $table->foreign('role_id')
+                ->references('id')
+                ->on('roles')
+                ->onDelete('cascade');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::table('roles', function (Blueprint $table)
+        {
+            
+        });
+    }
+}
+
+\\App\Provider\AuthServiceProvider.php
+<?php
+
+namespace App\Providers;
+use App\User;
+use App\Conversation;
+use App\Role;
+use App\Ability;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+
+class AuthServiceProvider extends ServiceProvider
+{
+    /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        // 'App\Model' => 'App\Policies\ModelPolicy',
+    ];
+
+    /**
+     * Register any authentication / authorization services.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->registerPolicies();
+
+        // Gate::before(function (User $user){
+            
+        //     if($user->id === 6)//admin
+        //     {
+        //         return true;
+        //     }
+            
+        // });
+        Gate::before(function($user,$ability){
+            return $user->abilities()->contains($ability);
+        });
+    }
+}
+
+
